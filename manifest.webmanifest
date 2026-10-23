@@ -1,0 +1,13 @@
+{
+  "name": "RelatórioTec – Relatórios Técnicos",
+  "short_name": "RelatórioTec",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f3f5f8",
+  "theme_color": "#165da0",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

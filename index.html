@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>RelatórioTec</title>
+  <meta name="description" content="Gerador de relatórios técnicos com fotos, medições e PDF.">
+  <meta name="theme-color" content="#165da0">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="icons/icon.svg" alt="" width="34" height="34">
+    <div>
+      <strong>RelatórioTec</strong>
+      <small id="hdrNumber">Novo relatório</small>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <span id="saveState" class="save-state" aria-live="polite"></span>
+    <button id="btnNew" class="btn ghost" type="button">+ Novo</button>
+    <button id="btnSettings" class="btn icon" type="button" title="Configurações" aria-label="Configurações">
+      <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M19.4 13a7.5 7.5 0 0 0 0-2l2.1-1.6-2-3.5-2.5 1a7 7 0 0 0-1.7-1L15 3.3h-4l-.4 2.6a7 7 0 0 0-1.7 1l-2.5-1-2 3.5L6.6 11a7.5 7.5 0 0 0 0 2l-2.1 1.6 2 3.5 2.5-1a7 7 0 0 0 1.7 1l.4 2.6h4l.4-2.6a7 7 0 0 0 1.7-1l2.5 1 2-3.5zM13 15.5a3.5 3.5 0 1 1 0-7 3.5 3.5 0 0 1 0 7z" transform="translate(-1 0)"/></svg>
+    </button>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab active" data-tab="dados" role="tab" type="button">
+    <svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v13H6z M14 3v6h6 M9 13h8 M9 17h6"/></svg><span>Dados</span>
+  </button>
+  <button class="tab" data-tab="evidencias" role="tab" type="button">
+    <svg viewBox="0 0 24 24"><path d="M4 7h3l2-3h6l2 3h3v13H4z"/><circle cx="12" cy="13" r="4"/></svg><span>Evidências</span><em id="badgePhotos" class="badge" hidden></em>
+  </button>
+  <button class="tab" data-tab="medicoes" role="tab" type="button">
+    <svg viewBox="0 0 24 24"><path d="M4 20a8 8 0 1 1 16 0 M12 20l4-7 M4 20h16"/></svg><span>Medições</span>
+  </button>
+  <button class="tab" data-tab="finalizar" role="tab" type="button">
+    <svg viewBox="0 0 24 24"><path d="M5 12l5 5 9-10"/></svg><span>Finalizar</span>
+  </button>
+  <button class="tab" data-tab="historico" role="tab" type="button">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>Histórico</span>
+  </button>
+</nav>
+
+<main>
+
+  <!-- ============ DADOS ============ -->
+  <section class="panel active" data-panel="dados">
+    <div class="card">
+      <h2>Serviço</h2>
+      <div class="grid">
+        <label>Data<input type="date" data-bind="date"></label>
+        <label>Tipo de serviço
+          <select data-bind="serviceType" id="serviceType"></select>
+        </label>
+        <label>Situação
+          <select data-bind="status">
+            <option>Concluído</option>
+            <option>Em andamento</option>
+            <option>Pendente</option>
+            <option>Orçamento</option>
+          </select>
+        </label>
+        <label>Início<input type="time" data-bind="tech.start"></label>
+        <label>Término<input type="time" data-bind="tech.end"></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Cliente</h2>
+      <div class="grid">
+        <label class="span2">Nome / Razão social *<input data-bind="client.name" id="clientName" autocomplete="off" placeholder="Ex.: Padaria Pão Quente Ltda"></label>
+        <label>CPF / CNPJ<input data-bind="client.doc" inputmode="numeric"></label>
+        <label>WhatsApp / Telefone<input data-bind="client.phone" type="tel" placeholder="(11) 98888-7777"></label>
+        <label>E-mail<input data-bind="client.email" type="email" placeholder="cliente@email.com"></label>
+        <label class="span2">Endereço<input data-bind="client.address"></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Equipamento</h2>
+      <div class="grid">
+        <label>Equipamento<input data-bind="equipment.type" placeholder="Ex.: Split Hi-Wall 12.000 BTU"></label>
+        <label>Marca<input data-bind="equipment.brand"></label>
+        <label>Modelo<input data-bind="equipment.model"></label>
+        <label>Nº de série / Patrimônio<input data-bind="equipment.serial"></label>
+        <label class="span2">Local de instalação<input data-bind="equipment.location" placeholder="Ex.: Sala de reunião, 2º andar"></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Descrição do atendimento</h2>
+      <div class="grid one">
+        <label>Solicitação / Problema relatado<textarea data-bind="service.request" rows="2"></textarea></label>
+        <label>Diagnóstico<textarea data-bind="service.diagnosis" rows="3"></textarea></label>
+        <label>Serviço executado<textarea data-bind="service.executed" rows="4"></textarea></label>
+        <label>Materiais / Peças utilizadas<textarea data-bind="service.materials" rows="2" placeholder="Um item por linha"></textarea></label>
+        <label>Recomendações ao cliente<textarea data-bind="service.recommendations" rows="2"></textarea></label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Técnico responsável</h2>
+      <div class="grid">
+        <label>Nome<input data-bind="tech.name"></label>
+        <label>Registro (CREA / CFT / matrícula)<input data-bind="tech.reg"></label>
+      </div>
+    </div>
+
+    <div class="nav-next"><button class="btn primary" data-goto="evidencias" type="button">Próximo: Evidências →</button></div>
+  </section>
+
+  <!-- ============ EVIDÊNCIAS ============ -->
+  <section class="panel" data-panel="evidencias">
+    <div class="card">
+      <h2>Fotos do atendimento</h2>
+      <p class="hint">Fotografe o equipamento, o antes e o depois. As imagens são reduzidas automaticamente para o PDF ficar leve.</p>
+      <div class="photo-actions">
+        <label class="inline">Categoria das novas fotos
+          <select id="newPhotoCat"></select>
+        </label>
+        <label class="btn primary file-btn">
+          <input type="file" id="photoCamera" accept="image/*" capture="environment" hidden>
+          Tirar foto
+        </label>
+        <label class="btn file-btn">
+          <input type="file" id="photoFiles" accept="image/*" multiple hidden>
+          Escolher da galeria
+        </label>
+      </div>
+      <div id="photoSummary" class="chips"></div>
+    </div>
+    <div id="photoList" class="photo-grid"></div>
+    <div id="photoEmpty" class="empty">Nenhuma foto adicionada ainda.</div>
+    <div class="nav-next"><button class="btn primary" data-goto="medicoes" type="button">Próximo: Medições →</button></div>
+  </section>
+
+  <!-- ============ MEDIÇÕES ============ -->
+  <section class="panel" data-panel="medicoes">
+    <div class="card">
+      <h2>Medições</h2>
+      <p class="hint">Registre os valores medidos. Use o modelo para preencher as grandezas típicas do tipo de serviço.</p>
+      <div class="row-actions">
+        <button class="btn" id="btnPreset" type="button">Usar modelo: <span id="presetName"></span></button>
+        <button class="btn ghost" id="btnAddMeas" type="button">+ Adicionar linha</button>
+      </div>
+      <div class="table-wrap">
+        <table class="meas">
+          <thead><tr><th>Grandeza</th><th>Valor</th><th>Unidade</th><th>Referência / Obs.</th><th></th></tr></thead>
+          <tbody id="measBody"></tbody>
+        </table>
+      </div>
+      <div id="measEmpty" class="empty small">Nenhuma medição registrada.</div>
+    </div>
+    <div class="card">
+      <h2>Observações gerais</h2>
+      <textarea data-bind="notes" rows="4" placeholder="Condições do local, pendências, garantia do serviço..."></textarea>
+    </div>
+    <div class="nav-next"><button class="btn primary" data-goto="finalizar" type="button">Próximo: Finalizar →</button></div>
+  </section>
+
+  <!-- ============ FINALIZAR ============ -->
+  <section class="panel" data-panel="finalizar">
+    <div class="card">
+      <h2>Conferência</h2>
+      <ul id="checklist" class="checklist"></ul>
+    </div>
+
+    <div class="card">
+      <h2>Assinatura do cliente</h2>
+      <label>Recebido por (nome)<input data-bind="signature.name" placeholder="Nome de quem acompanhou o serviço"></label>
+      <div class="sig-box">
+        <canvas id="sigClient" width="600" height="200" aria-label="Área de assinatura"></canvas>
+        <span class="sig-placeholder">Assine aqui com o dedo</span>
+      </div>
+      <button class="btn ghost small" id="btnClearSig" type="button">Limpar assinatura</button>
+    </div>
+
+    <div class="card">
+      <h2>Gerar e entregar</h2>
+      <div class="deliver">
+        <button class="btn" id="btnPreview" type="button">Visualizar PDF</button>
+        <button class="btn" id="btnDownload" type="button">Baixar PDF</button>
+        <button class="btn whatsapp" id="btnWhats" type="button">Enviar no WhatsApp</button>
+        <button class="btn" id="btnEmail" type="button">Enviar por e-mail</button>
+        <button class="btn primary" id="btnShare" type="button">Compartilhar…</button>
+      </div>
+      <p class="hint" id="shareHint"></p>
+      <ul id="deliveries" class="deliveries"></ul>
+    </div>
+  </section>
+
+  <!-- ============ HISTÓRICO ============ -->
+  <section class="panel" data-panel="historico">
+    <div class="card">
+      <div class="grid">
+        <label class="span2">Buscar<input type="search" id="histSearch" placeholder="Cliente, nº do relatório, equipamento..."></label>
+        <label>Situação
+          <select id="histStatus">
+            <option value="">Todas</option>
+            <option>Concluído</option>
+            <option>Em andamento</option>
+            <option>Pendente</option>
+            <option>Orçamento</option>
+          </select>
+        </label>
+      </div>
+    </div>
+    <div id="histList" class="hist-list"></div>
+    <div id="histEmpty" class="empty">Nenhum relatório salvo ainda.</div>
+  </section>
+</main>
+
+<!-- ============ CONFIGURAÇÕES ============ -->
+<dialog id="dlgSettings" class="dialog">
+  <form method="dialog" id="settingsForm">
+    <header class="dialog-head">
+      <h2>Configurações</h2>
+      <button class="btn icon" value="cancel" aria-label="Fechar">✕</button>
+    </header>
+    <div class="dialog-body">
+      <h3>Empresa (cabeçalho do PDF)</h3>
+      <div class="grid">
+        <label class="span2">Nome da empresa<input data-set="company"></label>
+        <label>CNPJ<input data-set="cnpj"></label>
+        <label>Telefone<input data-set="phone" type="tel"></label>
+        <label>E-mail<input data-set="email" type="email"></label>
+        <label class="span2">Endereço<input data-set="address"></label>
+        <label>Cor do relatório<input data-set="color" type="color"></label>
+        <label>Logotipo
+          <input type="file" id="logoFile" accept="image/*">
+        </label>
+      </div>
+      <div class="logo-preview">
+        <img id="logoPreview" alt="Logotipo" hidden>
+        <button class="btn ghost small" id="btnRemoveLogo" type="button" hidden>Remover logotipo</button>
+      </div>
+      <label>Texto do rodapé / termos de garantia
+        <textarea data-set="footer" rows="2" placeholder="Ex.: Garantia de 90 dias sobre o serviço executado."></textarea>
+      </label>
+
+      <h3>Técnico padrão</h3>
+      <div class="grid">
+        <label>Nome<input data-set="techName"></label>
+        <label>Registro<input data-set="techReg"></label>
+      </div>
+      <p class="hint">Assinatura do técnico (usada em todos os relatórios):</p>
+      <div class="sig-box">
+        <canvas id="sigTech" width="600" height="200"></canvas>
+        <span class="sig-placeholder">Assine aqui</span>
+      </div>
+      <button class="btn ghost small" id="btnClearTechSig" type="button">Limpar assinatura</button>
+
+      <h3>Backup</h3>
+      <p class="hint">Os relatórios ficam salvos neste navegador. Exporte um backup regularmente.</p>
+      <div class="row-actions">
+        <button class="btn" id="btnExport" type="button">Exportar backup</button>
+        <label class="btn file-btn"><input type="file" id="importFile" accept="application/json,.json" hidden>Importar backup</label>
+      </div>
+    </div>
+    <footer class="dialog-foot">
+      <button class="btn ghost" value="cancel">Cancelar</button>
+      <button class="btn primary" id="btnSaveSettings" value="ok">Salvar</button>
+    </footer>
+  </form>
+</dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="vendor/jspdf.umd.min.js"></script>
+<script src="vendor/jspdf.plugin.autotable.min.js"></script>
+<script src="js/db.js"></script>
+<script src="js/images.js"></script>
+<script src="js/signature.js"></script>
+<script src="js/pdf.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
